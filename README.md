@@ -1,6 +1,6 @@
-# Project Name
+# Job Sphere
 
-A short description of what this project does and why it exists.
+A modern job platform with two dedicated portals: an Admin portal to post and manage job openings, and a Job Seeker portal where users can create their profiles, apply for jobs, and track their application status.
 
 This project is maintained under **PW Institute of Innovation – Open Source** and follows real-world open-source development practices.
 
@@ -11,7 +11,7 @@ This project is maintained under **PW Institute of Innovation – Open Source** 
 ### Prerequisites
 
 - Git
-- Required language/runtime (Node.js / Python / Java, etc.)
+- Required language/runtime (Node.js / Next.js / Express.js / PostgreSQL / TypeScript)
 
 ### Installation
 
@@ -116,8 +116,12 @@ This helps us triage and respond faster.
 
 ## Credits
 
-- **Original Author(s):** Name(s) / Github handle(s)
-- **Maintainers:** See repository contributors
+- **Original Author(s):**
+  - [Ankit Raj](https://github.com/ankitraj061)
+  - [Anuj Kumar](https://github.com/AnuJ221011)
+
+- **Maintainer:**
+  - [Ankit Raj](https://github.com/ankitraj061)
 
 ## Contributing
 
