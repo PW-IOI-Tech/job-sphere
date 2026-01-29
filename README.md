@@ -116,12 +116,9 @@ This helps us triage and respond faster.
 
 ## Credits
 
-- **Original Author(s):**
-  - [Ankit Raj](https://github.com/ankitraj061)
-  - [Anuj Kumar](https://github.com/AnuJ221011)
+- **Original Author(s):** [Ankit Raj](https://github.com/ankitraj061), [Anuj Kumar](https://github.com/AnuJ221011)
 
-- **Maintainer:**
-  - [Ankit Raj](https://github.com/ankitraj061)
+- **Maintainers:** See repository contributors
 
 ## Contributing
 
