@@ -1,0 +1,290 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String
+  email          String    @unique
+  password       String
+  phone          String?
+  location       String?
+  profilePicture String?
+  role           Role
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  jobSeeker      JobSeeker?
+  employer       Employer?
+}
+
+enum Role {
+  JOB_SEEKER
+  EMPLOYER
+}
+
+model JobSeeker {
+  id          Int           @id @default(autoincrement())
+  userId      Int           @unique
+  resume      String?
+  linkedin    String?
+  github      String?
+  skills      String[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  education   Education[]
+  experience  Experience[]
+  projects    Project[]
+  preferences Preferences?
+  applications Application[]
+}
+
+model Employer {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  companyId     Int?     // Nullable - can be set later when company is selected/created
+  jobTitle      String?  // e.g., "HR Manager", "Technical Recruiter"
+  department    String?  // e.g., "Human Resources", "Engineering"
+  role          CompanyRole @default(RECRUITER)
+  isActive      Boolean  @default(true)
+  joinedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company       Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  jobs          Job[]    // Jobs posted by this employer
+  
+  @@index([companyId])
+}
+
+enum CompanyRole {
+  ADMIN           // Can manage company settings and other employers
+  HR_MANAGER      // Can post jobs and manage all applications
+  RECRUITER       // Can post jobs and manage applications
+  HIRING_MANAGER  // Can view and manage applications for specific roles
+}
+
+model Company {
+  id               Int      @id @default(autoincrement())
+  name             String   @unique
+  description      String?
+  website          String?
+  profilePicture   String?
+  size             CompanySize?
+  industry         String?
+  location         String?
+  foundedYear      Int?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  employers        Employer[] // One company has many employers
+  jobs             Job[]
+  
+  @@index([name])
+  @@index([industry])
+}
+
+enum CompanySize {
+  STARTUP_1_10
+  SMALL_11_50
+  MEDIUM_51_200
+  LARGE_201_1000
+  ENTERPRISE_1000_PLUS
+}
+
+model Education {
+  id           Int       @id @default(autoincrement())
+  seekerId     Int
+  institution  String
+  degree       String
+  fieldOfStudy String?
+  startDate    DateTime?
+  endDate      DateTime?
+  grade        String?
+  description  String?
+  jobSeeker    JobSeeker @relation(fields: [seekerId], references: [id], onDelete: Cascade)
+}
+
+model Experience {
+  id          Int       @id @default(autoincrement())
+  seekerId    Int
+  company     String
+  position    String
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  description String?
+  location    String?
+  jobSeeker   JobSeeker @relation(fields: [seekerId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  seekerId    Int
+  title       String
+  description String?
+  technologies String[]
+  startDate   DateTime?
+  endDate     DateTime?
+  githubUrl   String?
+  liveUrl     String?
+  isActive    Boolean   @default(false)
+  jobSeeker   JobSeeker @relation(fields: [seekerId], references: [id], onDelete: Cascade)
+}
+
+model Preferences {
+  id              Int       @id @default(autoincrement())
+  seekerId        Int       @unique
+  preferredRoles  JobRole[]
+  preferredJobTypes JobType[]
+  preferredLocations String[]
+  salaryExpectationMin Float?
+  salaryExpectationMax Float?
+  remoteWork      Boolean   @default(false)
+  willingToRelocate Boolean @default(false)
+  jobSeeker       JobSeeker @relation(fields: [seekerId], references: [id], onDelete: Cascade)
+}
+
+model Job {
+  id           Int         @id @default(autoincrement())
+  companyId    Int
+  employerId   Int         // Who posted this job
+  title        String
+  role         JobRole
+  description  String
+  requirements String?
+  location     String?
+  jobType      JobType
+  salaryMin    Float?
+  salaryMax    Float?
+  noOfOpenings Int         @default(1)
+  status       JobStatus   @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  company      Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employer     Employer    @relation(fields: [employerId], references: [id])
+  formFields   JobFormField[]
+  applications Application[]
+  
+  @@index([companyId])
+  @@index([employerId])
+  @@index([role])
+  @@index([jobType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum JobStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+}
+
+enum JobRole {
+  SOFTWARE_ENGINEER
+  BACKEND_DEVELOPER
+  FRONTEND_DEVELOPER
+  FULLSTACK_DEVELOPER
+  DATA_SCIENTIST
+  DATA_ANALYST
+  DEVOPS_ENGINEER
+  CLOUD_ENGINEER
+  ML_ENGINEER
+  AI_ENGINEER
+  MOBILE_DEVELOPER
+  ANDROID_DEVELOPER
+  IOS_DEVELOPER
+  UI_UX_DESIGNER
+  PRODUCT_MANAGER
+  PROJECT_MANAGER
+  BUSINESS_ANALYST
+  QA_ENGINEER
+  TEST_AUTOMATION_ENGINEER
+  CYBERSECURITY_ANALYST
+  NETWORK_ENGINEER
+  SYSTEM_ADMIN
+  DATABASE_ADMIN
+  BLOCKCHAIN_DEVELOPER
+  GAME_DEVELOPER
+  TECH_SUPPORT
+  CONTENT_WRITER
+  DIGITAL_MARKETER
+  SALES_ASSOCIATE
+  HR_MANAGER
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  INTERNSHIP
+  CONTRACT
+}
+
+model JobFormField {
+  id          Int        @id @default(autoincrement())
+  jobId       Int
+  label       String  
+  fieldType   FieldType
+  isRequired  Boolean     @default(true)
+  isDefault   Boolean     @default(false) // Mark default fields
+  order       Int         @default(0)
+  options     String[]    @default([]) // For select/multiselect fields
+  job         Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  responses   ApplicationResponse[]
+  @@index([jobId])
+}
+
+enum FieldType {
+  TEXT
+  NUMBER
+  EMAIL
+  PHONE
+  LOCATION
+  RESUME_URL
+  TEXTAREA
+  SELECT
+  MULTISELECT
+  CHECKBOX
+  DATE
+  YEARS_OF_EXPERIENCE
+}
+
+model Application {
+  id          Int        @id @default(autoincrement())
+  jobId       Int
+  seekerId    Int
+  status      ApplicationStatus @default(PENDING)
+  appliedAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  jobSeeker   JobSeeker  @relation(fields: [seekerId], references: [id], onDelete: Cascade)
+  job         Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  responses   ApplicationResponse[]
+  @@unique([jobId, seekerId])
+  @@index([seekerId])
+  @@index([jobId])
+  @@index([status])
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  SHORTLISTED
+  INTERVIEWED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+model ApplicationResponse {
+  id          Int        @id @default(autoincrement())
+  applicationId Int
+  fieldId     Int
+  answer      String
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  field       JobFormField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  @@unique([applicationId, fieldId])
+}
